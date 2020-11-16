@@ -1,0 +1,7 @@
+*.log
+*.pot
+*.pyc
+venv
+*.sqlite3
+local_settings.py
+.vagrant
