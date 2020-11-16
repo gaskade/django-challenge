@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.db.models import Prefetch, Sum, Count
 
 
 class Company(models.Model):
@@ -12,17 +13,12 @@ class Company(models.Model):
 
     def get_order_count(self):
         orders = 0
-        for order in self.orders.all():
+        for order in self.orders.all().select_related('company'):
             orders += 1
         return orders
 
     def get_order_sum(self):
-        total_sum = 0
-        for contact in self.contacts.all():
-            for order in contact.orders.all():
-                total_sum += order.total
-        return total_sum
-
+         return self.contacts.aggregate(order_sum=Sum('orders__total')).get('order_sum')
 
 class Contact(models.Model):
     company = models.ForeignKey(
@@ -33,7 +29,7 @@ class Contact(models.Model):
 
     def get_order_count(self):
         orders = 0
-        for order in self.orders.all():
+        for order in self.orders.all().select_related('contact'):
             orders += 1
         return orders
 
